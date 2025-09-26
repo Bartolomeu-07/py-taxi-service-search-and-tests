@@ -1,10 +1,8 @@
-from http.client import responses
-
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from taxi.models import Manufacturer
+from taxi.models import Manufacturer, Car
 
 
 class TestViews(TestCase):
@@ -56,4 +54,60 @@ class TestViews(TestCase):
         )
         self.assertEqual(
             list(response.context["manufacturer_list"]), [manufacturer2]
+        )
+
+    def test_search_driver_by_username(self):
+        admin1 = get_user_model().objects.create_superuser(
+            username="moving",
+            first_name="Admin",
+            last_name="Admin",
+            license_number="CDE876234"
+        )
+        admin2 = get_user_model().objects.create_superuser(
+            username="star",
+            first_name="Admin",
+            last_name="Admin",
+            license_number="BIE00238"
+        )
+
+        response = self.client.get(
+            reverse("taxi:driver-list"), {"username": "g"}
+        )
+        self.assertEqual(
+            list(response.context["driver_list"]), [admin1]
+        )
+
+        response = self.client.get(
+            reverse("taxi:driver-list"), {"username": "r"}
+        )
+        self.assertEqual(
+            list(response.context["driver_list"]), [admin2]
+        )
+
+    def test_search_car_by_model(self):
+        manufacturer = Manufacturer.objects.create(
+            name="BWM",
+            country="Germany",
+        )
+        car1 = Car.objects.create(
+            manufacturer=manufacturer,
+            model="E93",
+        )
+        car2 = Car.objects.create(
+            manufacturer=manufacturer,
+            model="M3",
+        )
+
+        response = self.client.get(
+            reverse("taxi:car-list"), {"model": "9"}
+        )
+        self.assertEqual(
+            list(response.context["car_list"]), [car1]
+        )
+
+        response = self.client.get(
+            reverse("taxi:car-list"), {"model": "m"}
+        )
+        self.assertEqual(
+            list(response.context["car_list"]), [car2]
         )
