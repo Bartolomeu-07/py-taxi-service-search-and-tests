@@ -9,7 +9,7 @@ class TestModels(TestCase):
             username="testdriver",
             first_name="Test",
             last_name="Driver",
-            license_number="ABC123456",
+            license_number="ABC12345",
         )
 
         self.manufacturer = Manufacturer.objects.create(
